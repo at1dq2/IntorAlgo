@@ -10,12 +10,13 @@ public class BSTree {
 		RED,BLACK;
 		
 	}
+	/*
 	public BSTreeNode NIL;
 	{
 		NIL = new BSTreeNode(null);
 		NIL.color = Color.BLACK;
 	}
-	
+	*/
 	
 	public void inorderTreeWalk(BSTreeNode t) {
 		if(t != null) {
@@ -131,16 +132,19 @@ public class BSTree {
 	4. If a node is red, then both its children are black.
 	5. For each node, all paths from the node to descendant leaves contain the same number
 	of black nodes.
+	return root node
 	**/
-	public void rbTreeInsert(BSTreeNode root, BSTreeNode z) {
+	public BSTreeNode rbTreeInsert(BSTreeNode root, BSTreeNode z) {
 		treeInsert(root, z);
 		z.color = Color.RED;
-		rbInsertFixUp(root, z);
+		return rbInsertFixUp(root, z);
 	}
-	public void rbInsertFixUp(BSTreeNode root, BSTreeNode z) {
+	public BSTreeNode rbInsertFixUp(BSTreeNode root, BSTreeNode z) {
+		//z is not root, because z is always red,
+		//so while exit condition is z's parent color is different
 		if(z != root) {
-			//z is not root, because z is always red, so while exit condition is z's parent color is different
-			while(z.parent.color == Color.RED) {
+			//z parent means z is null right now after some rotations
+			while(z.parent != null && z.parent.color == Color.RED) {
 				if(z.parent == z.parent.parent.left) {
 					BSTreeNode y = z.parent.parent.right;
 					if(y != null && y.color == Color.RED) {
@@ -165,7 +169,9 @@ public class BSTree {
 					if(y != null && y.color == Color.RED) {
 						//case 1
 						z.parent.color = Color.BLACK;
+						y.color = Color.BLACK;
 						z.parent.parent.color = Color.RED;
+						z = z.parent.parent;
 					}
 					else {
 						if(z == z.parent.left) {
@@ -182,11 +188,15 @@ public class BSTree {
 			}
 		}
 		root.color = Color.BLACK;
+		return root;
 	}
 
 	@org.junit.Test
 	public void rbTreeCreation() {
+		//BSTreeNode NIL = new BSTreeNode(null);
+		//NIL.color = Color.BLACK;
 		BSTreeNode root = new BSTreeNode(new Integer(11));
+		//root.parent = NIL;
 		root.color = Color.BLACK;
 		
 		BSTree bsTree = new BSTree();
@@ -201,16 +211,18 @@ public class BSTree {
 		BSTreeNode node7 = new BSTreeNode(new Integer(14));
 		BSTreeNode node8 = new BSTreeNode(new Integer(15));
 		
-		bsTree.rbTreeInsert(root, node1);
-		bsTree.rbTreeInsert(root, node2);
-		bsTree.rbTreeInsert(root, node3);
-		bsTree.rbTreeInsert(root, node4);
-		bsTree.rbTreeInsert(root, node5);
-		bsTree.rbTreeInsert(root, node6);
-		bsTree.rbTreeInsert(root, node7);
-		bsTree.rbTreeInsert(root, node8);
-		
-		
+		root = bsTree.rbTreeInsert(root, node1);
+		root = bsTree.rbTreeInsert(root, node2);
+		root = bsTree.rbTreeInsert(root, node3);
+		root = bsTree.rbTreeInsert(root, node4);
+		root = bsTree.rbTreeInsert(root, node5);
+		root = bsTree.rbTreeInsert(root, node6);
+		root = bsTree.rbTreeInsert(root, node7);
+		root = bsTree.rbTreeInsert(root, node8);
+
+	}
+	
+	public void assertTreeIsRedBlackTree(BSTreeNode root) {
 		
 	}
 	
