@@ -223,7 +223,7 @@ public class BSTree {
 	}
 	
 	public void assertTreeIsRedBlackTree(BSTreeNode root) {
-		
+		System.out.println("this is a test");
 	}
 	
 	public void treeDelete(BSTreeNode root, BSTreeNode z) {
