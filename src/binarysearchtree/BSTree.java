@@ -241,64 +241,70 @@ public class BSTree {
 	of black nodes.
 	**/
 	public void assertTreeIsRedBlackTree(BSTreeNode root) {
-		Assert.assertTrue(true);
-		Assert.assertEquals(Color.BLACK, root.color);
-		BSTreeNode nextCheckNode = root;
-		Hashtable<BSTreeNode, Integer[]> numOfBlackNodeFromEachTreeNode = 
-				new Hashtable<BSTreeNode, Integer[]>();
-		ArrayList<BSTreeNode> leafNodes = new ArrayList<BSTreeNode>();
 		class PassedbsTreeNode {
 			BSTreeNode bsTreeNode;
 			boolean isLeftVisited;
 			boolean isRightVisited;
+			public PassedbsTreeNode(BSTreeNode bsTreeNode) {
+				this.bsTreeNode = bsTreeNode;
+			}
 		}
+		Assert.assertTrue(true);
+		Assert.assertEquals(Color.BLACK, root.color);
+		//PassedbsTreeNode nextCheckNode = root;
+		
+		Hashtable<BSTreeNode, Integer[]> numOfBlackNodeFromEachTreeNode = 
+				new Hashtable<BSTreeNode, Integer[]>();
+		ArrayList<PassedbsTreeNode> leafNodes = new ArrayList<PassedbsTreeNode>();
+		
+		PassedbsTreeNode nextCheckNode = new PassedbsTreeNode(root);
 		Stack<PassedbsTreeNode> passedNodes = new Stack<PassedbsTreeNode>();
 		while(nextCheckNode != null) {
-			if(nextCheckNode.color == Color.RED) {
-				if((nextCheckNode.left != null && nextCheckNode.right == null) || 
-						(nextCheckNode.right != null && nextCheckNode.left == null)) {
+			if(nextCheckNode.bsTreeNode.color == Color.RED) {
+				if((nextCheckNode.bsTreeNode.left != null && nextCheckNode.bsTreeNode.right == null) || 
+						(nextCheckNode.bsTreeNode.right != null && nextCheckNode.bsTreeNode.left == null)) {
 					Assert.fail("parnet is red, then child should both exist and be black");
 				}
-				if(nextCheckNode.left != null) {
-					Assert.assertEquals(Color.BLACK, nextCheckNode.left.color);
+				if(nextCheckNode.bsTreeNode.left != null) {
+					Assert.assertEquals(Color.BLACK, nextCheckNode.bsTreeNode.left.color);
 				}
-				if(nextCheckNode.right != null) {
-					Assert.assertEquals(Color.BLACK, nextCheckNode.right.color);
+				if(nextCheckNode.bsTreeNode.right != null) {
+					Assert.assertEquals(Color.BLACK, nextCheckNode.bsTreeNode.right.color);
 				}
 			}
-			if(nextCheckNode.left == null && nextCheckNode.right == null) {
+			if(nextCheckNode.bsTreeNode.left == null && nextCheckNode.bsTreeNode.right == null) {
 				leafNodes.add(nextCheckNode);
 				PassedbsTreeNode tempNode = passedNodes.pop();
 				if(tempNode.isLeftVisited && !tempNode.isRightVisited) {
-					nextCheckNode = tempNode.bsTreeNode;
+					nextCheckNode = tempNode;
 					tempNode.isRightVisited = true;
 					passedNodes.add(tempNode);
 				}
 				else if(!tempNode.isLeftVisited && tempNode.isRightVisited) {
-					nextCheckNode = tempNode.bsTreeNode;
+					nextCheckNode = tempNode;
 					tempNode.isLeftVisited = true;
 					passedNodes.add(tempNode);
 				}
 				else {
 					if(tempNode.bsTreeNode.parent != null) {
 						PassedbsTreeNode tempNode2 = passedNodes.pop();
-						nextCheckNode = tempNode2.bsTreeNode; 
+						nextCheckNode = tempNode2; 
 					}
 				}
 			}
-			if(nextCheckNode.left != null) {
-				PassedbsTreeNode tempNode = new PassedbsTreeNode();
-				tempNode.bsTreeNode = nextCheckNode;
-				tempNode.isLeftVisited = true;
-				passedNodes.add(tempNode);
-				nextCheckNode = nextCheckNode.left;
+			if(nextCheckNode.bsTreeNode.left != null && !nextCheckNode.isLeftVisited) {
+				//PassedbsTreeNode tempNode = new PassedbsTreeNode();
+				//tempNode.bsTreeNode = nextCheckNode;
+				//tempNode.isLeftVisited = true;
+				passedNodes.add(nextCheckNode);
+				nextCheckNode = new PassedbsTreeNode(nextCheckNode.bsTreeNode.left);
 			}
-			else if(nextCheckNode.right != null) {
-				PassedbsTreeNode tempNode = new PassedbsTreeNode();
-				tempNode.bsTreeNode = nextCheckNode;
-				tempNode.isRightVisited = true;
-				passedNodes.add(tempNode);
-				nextCheckNode = nextCheckNode.right;
+			else if(nextCheckNode.bsTreeNode.right != null && !nextCheckNode.isRightVisited) {
+				//PassedbsTreeNode tempNode = new PassedbsTreeNode();
+				//tempNode.bsTreeNode = nextCheckNode;
+				//tempNode.isRightVisited = true;
+				passedNodes.add(nextCheckNode);
+				nextCheckNode = new PassedbsTreeNode(nextCheckNode.bsTreeNode.right);
 			}
 		}
 		
