@@ -249,7 +249,6 @@ public class BSTree {
 				this.bsTreeNode = bsTreeNode;
 			}
 		}
-		Assert.assertTrue(true);
 		Assert.assertEquals(Color.BLACK, root.color);
 		//PassedbsTreeNode nextCheckNode = root;
 		
@@ -260,6 +259,7 @@ public class BSTree {
 		PassedbsTreeNode nextCheckNode = new PassedbsTreeNode(root);
 		Stack<PassedbsTreeNode> passedNodes = new Stack<PassedbsTreeNode>();
 		while(nextCheckNode != null) {
+			//check property  If a node is red, then both its children are black.
 			if(nextCheckNode.bsTreeNode.color == Color.RED) {
 				if((nextCheckNode.bsTreeNode.left != null && nextCheckNode.bsTreeNode.right == null) || 
 						(nextCheckNode.bsTreeNode.right != null && nextCheckNode.bsTreeNode.left == null)) {
@@ -272,37 +272,36 @@ public class BSTree {
 					Assert.assertEquals(Color.BLACK, nextCheckNode.bsTreeNode.right.color);
 				}
 			}
+			//iterate all node and save leaf node to list for further compute black node num on one path
 			if(nextCheckNode.bsTreeNode.left == null && nextCheckNode.bsTreeNode.right == null) {
 				leafNodes.add(nextCheckNode);
 				PassedbsTreeNode tempNode = passedNodes.pop();
 				if(tempNode.isLeftVisited && !tempNode.isRightVisited) {
-					nextCheckNode = tempNode;
 					tempNode.isRightVisited = true;
+					nextCheckNode = new PassedbsTreeNode(nextCheckNode.bsTreeNode.right);
 					passedNodes.add(tempNode);
 				}
 				else if(!tempNode.isLeftVisited && tempNode.isRightVisited) {
-					nextCheckNode = tempNode;
 					tempNode.isLeftVisited = true;
+					nextCheckNode = new PassedbsTreeNode(nextCheckNode.bsTreeNode.left);
 					passedNodes.add(tempNode);
 				}
-				else {
+				else if(tempNode.isLeftVisited && tempNode.isRightVisited){
 					if(tempNode.bsTreeNode.parent != null) {
+						//tempNode2 is tempNode's parent
 						PassedbsTreeNode tempNode2 = passedNodes.pop();
 						nextCheckNode = tempNode2; 
 					}
 				}
 			}
+			//left is first priority
 			if(nextCheckNode.bsTreeNode.left != null && !nextCheckNode.isLeftVisited) {
-				//PassedbsTreeNode tempNode = new PassedbsTreeNode();
-				//tempNode.bsTreeNode = nextCheckNode;
-				//tempNode.isLeftVisited = true;
+				nextCheckNode.isLeftVisited = true;
 				passedNodes.add(nextCheckNode);
 				nextCheckNode = new PassedbsTreeNode(nextCheckNode.bsTreeNode.left);
 			}
 			else if(nextCheckNode.bsTreeNode.right != null && !nextCheckNode.isRightVisited) {
-				//PassedbsTreeNode tempNode = new PassedbsTreeNode();
-				//tempNode.bsTreeNode = nextCheckNode;
-				//tempNode.isRightVisited = true;
+				nextCheckNode.isRightVisited = true;
 				passedNodes.add(nextCheckNode);
 				nextCheckNode = new PassedbsTreeNode(nextCheckNode.bsTreeNode.right);
 			}
