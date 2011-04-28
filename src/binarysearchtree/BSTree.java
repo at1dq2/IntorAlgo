@@ -1,5 +1,10 @@
 package binarysearchtree;
 
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Stack;
+
+import org.junit.Assert;
 /**
 Let x be a node in a binary search tree.
 If y is a node in the left subtree of x, then key[y] <= key[x].
@@ -219,11 +224,86 @@ public class BSTree {
 		root = bsTree.rbTreeInsert(root, node6);
 		root = bsTree.rbTreeInsert(root, node7);
 		root = bsTree.rbTreeInsert(root, node8);
-
+		
+		assertTreeIsRedBlackTree(root);
 	}
 	
+	
+	/**
+	 * Red-black trees are one of many search-tree schemes that are
+	"balanced" in order to guarantee that basic dynamic-set operations take O(lg n) time in the
+	worst case.
+	1. Every node is either red or black.
+	2. The root is black.
+	3. Every leaf (NIL) is black.
+	4. If a node is red, then both its children are black.
+	5. For each node, all paths from the node to descendant leaves contain the same number
+	of black nodes.
+	**/
 	public void assertTreeIsRedBlackTree(BSTreeNode root) {
-		System.out.println("this is a test");
+		Assert.assertTrue(true);
+		Assert.assertEquals(Color.BLACK, root.color);
+		BSTreeNode nextCheckNode = root;
+		Hashtable<BSTreeNode, Integer[]> numOfBlackNodeFromEachTreeNode = 
+				new Hashtable<BSTreeNode, Integer[]>();
+		ArrayList<BSTreeNode> leafNodes = new ArrayList<BSTreeNode>();
+		class PassedbsTreeNode {
+			BSTreeNode bsTreeNode;
+			boolean isLeftVisited;
+			boolean isRightVisited;
+		}
+		Stack<PassedbsTreeNode> passedNodes = new Stack<PassedbsTreeNode>();
+		while(nextCheckNode != null) {
+			if(nextCheckNode.color == Color.RED) {
+				if((nextCheckNode.left != null && nextCheckNode.right == null) || 
+						(nextCheckNode.right != null && nextCheckNode.left == null)) {
+					Assert.fail("parnet is red, then child should both exist and be black");
+				}
+				if(nextCheckNode.left != null) {
+					Assert.assertEquals(Color.BLACK, nextCheckNode.left.color);
+				}
+				if(nextCheckNode.right != null) {
+					Assert.assertEquals(Color.BLACK, nextCheckNode.right.color);
+				}
+			}
+			if(nextCheckNode.left == null && nextCheckNode.right == null) {
+				leafNodes.add(nextCheckNode);
+				PassedbsTreeNode tempNode = passedNodes.pop();
+				if(tempNode.isLeftVisited && !tempNode.isRightVisited) {
+					nextCheckNode = tempNode.bsTreeNode;
+					tempNode.isRightVisited = true;
+					passedNodes.add(tempNode);
+				}
+				else if(!tempNode.isLeftVisited && tempNode.isRightVisited) {
+					nextCheckNode = tempNode.bsTreeNode;
+					tempNode.isLeftVisited = true;
+					passedNodes.add(tempNode);
+				}
+				else {
+					if(tempNode.bsTreeNode.parent != null) {
+						PassedbsTreeNode tempNode2 = passedNodes.pop();
+						nextCheckNode = tempNode2.bsTreeNode; 
+					}
+				}
+			}
+			if(nextCheckNode.left != null) {
+				PassedbsTreeNode tempNode = new PassedbsTreeNode();
+				tempNode.bsTreeNode = nextCheckNode;
+				tempNode.isLeftVisited = true;
+				passedNodes.add(tempNode);
+				nextCheckNode = nextCheckNode.left;
+			}
+			else if(nextCheckNode.right != null) {
+				PassedbsTreeNode tempNode = new PassedbsTreeNode();
+				tempNode.bsTreeNode = nextCheckNode;
+				tempNode.isRightVisited = true;
+				passedNodes.add(tempNode);
+				nextCheckNode = nextCheckNode.right;
+			}
+		}
+		
+		
+		
 	}
 	
 	public void treeDelete(BSTreeNode root, BSTreeNode z) {
