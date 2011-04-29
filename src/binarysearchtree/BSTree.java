@@ -225,10 +225,45 @@ public class BSTree {
 		root = bsTree.rbTreeInsert(root, node7);
 		root = bsTree.rbTreeInsert(root, node8);
 		
-		assertTreeIsRedBlackTree(root);
+		node6.color = Color.BLACK;
+		
+		assertTreeIsRedBlackTreeRecurisive(root);
 	}
 	
-	
+	/**
+	 * 
+	 * @param root
+	 * @return suppose left child and right child have same black nodes number, and return the number
+	 */
+	public int assertTreeIsRedBlackTreeRecurisive(BSTreeNode root) {
+		if(root != null) {
+			if(root.color == Color.RED) {
+				if((root.left != null && root.right == null) || 
+						(root.right != null && root.left == null)) {
+					Assert.fail("parnet is red, then child should both exist or both non-exist and be black");
+				}
+				if(root.left != null) {
+					Assert.assertEquals(Color.BLACK, root.left.color);
+				}
+				if(root.right != null) {
+					Assert.assertEquals(Color.BLACK, root.right.color);
+				}
+			}
+			
+			int leftNum =  assertTreeIsRedBlackTreeRecurisive(root.left);
+			int rightNum = assertTreeIsRedBlackTreeRecurisive(root.right);
+			if(leftNum != rightNum) {
+				Assert.fail("voliate property 5");
+				return 0;
+			}
+			else {
+				return root.color == Color.RED?leftNum:(leftNum+1);
+			}
+		}
+		else {
+			return 0;
+		}
+	}
 	/**
 	 * Red-black trees are one of many search-tree schemes that are
 	"balanced" in order to guarantee that basic dynamic-set operations take O(lg n) time in the
@@ -247,6 +282,10 @@ public class BSTree {
 			boolean isRightVisited;
 			public PassedbsTreeNode(BSTreeNode bsTreeNode) {
 				this.bsTreeNode = bsTreeNode;
+			}
+			public String toString() {
+				return bsTreeNode.toString() + "isLeftVisited:" + 
+						isLeftVisited + " isRightVisited:" + isRightVisited;
 			}
 		}
 		Assert.assertEquals(Color.BLACK, root.color);
@@ -278,12 +317,12 @@ public class BSTree {
 				PassedbsTreeNode tempNode = passedNodes.pop();
 				if(tempNode.isLeftVisited && !tempNode.isRightVisited) {
 					tempNode.isRightVisited = true;
-					nextCheckNode = new PassedbsTreeNode(nextCheckNode.bsTreeNode.right);
+					nextCheckNode = new PassedbsTreeNode(tempNode.bsTreeNode.right);
 					passedNodes.add(tempNode);
 				}
 				else if(!tempNode.isLeftVisited && tempNode.isRightVisited) {
 					tempNode.isLeftVisited = true;
-					nextCheckNode = new PassedbsTreeNode(nextCheckNode.bsTreeNode.left);
+					nextCheckNode = new PassedbsTreeNode(tempNode.bsTreeNode.left);
 					passedNodes.add(tempNode);
 				}
 				else if(tempNode.isLeftVisited && tempNode.isRightVisited){
@@ -294,20 +333,50 @@ public class BSTree {
 					}
 				}
 			}
-			//left is first priority
+			//left is first priority, go left
 			if(nextCheckNode.bsTreeNode.left != null && !nextCheckNode.isLeftVisited) {
 				nextCheckNode.isLeftVisited = true;
 				passedNodes.add(nextCheckNode);
 				nextCheckNode = new PassedbsTreeNode(nextCheckNode.bsTreeNode.left);
 			}
 			else if(nextCheckNode.bsTreeNode.right != null && !nextCheckNode.isRightVisited) {
+				//go right
 				nextCheckNode.isRightVisited = true;
 				passedNodes.add(nextCheckNode);
 				nextCheckNode = new PassedbsTreeNode(nextCheckNode.bsTreeNode.right);
 			}
+			else {
+				//go parent
+				nextCheckNode = passedNodes.pop();
+				if(nextCheckNode.bsTreeNode.parent == null) {
+					//this node is root
+					break;
+				}
+			}
 		}
 		
+		for(PassedbsTreeNode leafNode:leafNodes) {
+			BSTreeNode childNode = leafNode.bsTreeNode;
+			while(childNode.parent != null) {
+				if(childNode.color == Color.BLACK) {
+					Integer[] blackNum = numOfBlackNodeFromEachTreeNode.get(childNode.parent);
+					if(blackNum == null) {
+						blackNum = new Integer[2];
+						blackNum[0] = new Integer(0);
+						blackNum[1] = new Integer(0);
+					}
+					if(childNode == childNode.parent.left) {
+						blackNum[0] = blackNum[0] + 1;
+					}	
+					else if(childNode == childNode.parent.right) {
+						blackNum[1] = blackNum[1] + 1;
+					}
+				}
+				childNode = childNode.parent;
+			}
+		}
 		
+		System.out.println("out of loop");
 		
 	}
 	
