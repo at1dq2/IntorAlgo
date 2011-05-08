@@ -155,7 +155,9 @@ public class BSTree {
 					if(y != null && y.color == Color.RED) {
 						//case 1
 						z.parent.color = Color.BLACK;
+						y.color = Color.BLACK;
 						z.parent.parent.color = Color.RED;
+						z = z.parent.parent;
 					}
 					else {
 						if(z == z.parent.right) {
@@ -196,6 +198,109 @@ public class BSTree {
 		return root;
 	}
 
+	public BSTreeNode rbTreeDelete(BSTreeNode root, BSTreeNode z) {
+		BSTreeNode y;
+		if(z.left == null || z.right == null) {
+			y = z;
+		}
+		else {
+			// z has two children
+			y = treeSuccessor(z);
+		}
+		BSTreeNode x;
+		if(y.left != null) {
+			x = y.left;
+		}
+		else {
+			x = y.right;
+		}
+		x.parent = y.parent;
+		if(y.parent == null) {
+			root = x;
+		}
+		else {
+			if(y == y.parent.left) {
+				y.parent.left = x;
+			}
+			else {
+				y.parent.right = x;
+			}
+		}
+		if(y != z) {
+			z.key = y.key;
+		}
+		if(y.color == Color.BLACK) {
+			root = rbDeleteFixUp(root, x);
+		}
+		return root;
+	}
+	
+	public BSTreeNode rbDeleteFixUp(BSTreeNode root, BSTreeNode x) {
+		while(x != root && x.color == Color.BLACK) {
+			if(x == x.parent.left) {
+				BSTreeNode w = x.parent.right;
+				if(w.color == Color.RED) {
+					//case 1
+					w.color = Color.BLACK;
+					x.parent.color = Color.RED;
+					root = this.leftRotate(root, x.parent);
+					w = x.parent.right;
+				}
+				if(w.left.color == Color.BLACK && w.right.color == Color.BLACK) {
+					//case 2
+					w.color = Color.RED;
+					x = x.parent;
+				}
+				else {
+					if(w.right.color == Color.BLACK) {
+						//case 3
+						w.left.color = Color.BLACK;
+						w.color = Color.RED;
+						root = this.rightRotate(root, w);
+						w = x.parent.right;
+					}
+					//case 4
+					w.color = x.parent.color;
+					x.parent.color = Color.BLACK;
+					w.right.color = Color.BLACK;
+					this.leftRotate(root, x.parent);
+					x = root;
+				}
+			}
+			else {
+				BSTreeNode w = x.parent.left;
+				if(w.color == Color.RED) {
+					//case 1
+					w.color = Color.BLACK;
+					x.parent.color = Color.RED;
+					root = this.rightRotate(root, x.parent);
+					w = x.parent.left;
+				}
+				if(w.right.color == Color.BLACK && w.left.color == Color.BLACK) {
+					//case 2
+					w.color = Color.RED;
+					x = x.parent;
+				}
+				else {
+					if(w.left.color == Color.BLACK) {
+						//case 3
+						w.right.color = Color.BLACK;
+						w.color = Color.RED;
+						root = this.leftRotate(root, w);
+						w = x.parent.left;
+					}
+					//case 4
+					w.color = x.parent.color;
+					x.parent.color = Color.BLACK;
+					w.left.color = Color.BLACK;
+					this.rightRotate(root, x.parent);
+					x = root;
+				}
+			}
+		}
+		return root;
+	}
+	
 	@org.junit.Test
 	public void rbTreeCreation() {
 		//BSTreeNode NIL = new BSTreeNode(null);
@@ -230,6 +335,43 @@ public class BSTree {
 		assertTreeIsRedBlackTreeRecurisive(root);
 	}
 	
+	@org.junit.Test
+	public void rbTreeDeletion() {
+		//BSTreeNode NIL = new BSTreeNode(null);
+		//NIL.color = Color.BLACK;
+		BSTreeNode root = new BSTreeNode(new Integer(11));
+		//root.parent = NIL;
+		root.color = Color.BLACK;
+		
+		BSTree bsTree = new BSTree();
+		
+		//1, 2, 4, 5, 7, 8, 14, 15
+		BSTreeNode node1 = new BSTreeNode(new Integer(1));
+		BSTreeNode node2 = new BSTreeNode(new Integer(2));
+		BSTreeNode node3 = new BSTreeNode(new Integer(4));
+		BSTreeNode node4 = new BSTreeNode(new Integer(5));
+		BSTreeNode node5 = new BSTreeNode(new Integer(7));
+		BSTreeNode node6 = new BSTreeNode(new Integer(8));
+		BSTreeNode node7 = new BSTreeNode(new Integer(14));
+		BSTreeNode node8 = new BSTreeNode(new Integer(15));
+		BSTreeNode node9 = new BSTreeNode(new Integer(11));
+		
+		root = bsTree.rbTreeInsert(root, node1);
+		root = bsTree.rbTreeInsert(root, node2);
+		root = bsTree.rbTreeInsert(root, node3);
+		root = bsTree.rbTreeInsert(root, node4);
+		root = bsTree.rbTreeInsert(root, node5);
+		root = bsTree.rbTreeInsert(root, node6);
+		assertTreeIsRedBlackTreeRecurisive(root);
+		root = bsTree.rbTreeInsert(root, node7);
+		root = bsTree.rbTreeInsert(root, node8);
+		root = bsTree.rbTreeInsert(root, node9);
+		
+		//node6.color = Color.BLACK;
+		
+		assertTreeIsRedBlackTreeRecurisive(root);
+	}
+	
 	/**
 	 * 
 	 * @param root
@@ -243,10 +385,14 @@ public class BSTree {
 					Assert.fail("parnet is red, then child should both exist or both non-exist and be black");
 				}
 				if(root.left != null) {
-					Assert.assertEquals(Color.BLACK, root.left.color);
+					//Assert.assertEquals(Color.BLACK, root.left.color);
+					String message = "root key is "+root.key+"; root left child key is "+root.left.key;
+					Assert.assertEquals(message, Color.BLACK, root.left.color);
 				}
 				if(root.right != null) {
-					Assert.assertEquals(Color.BLACK, root.right.color);
+					//Assert.assertEquals(Color.BLACK, root.right.color);
+					String message = "root key is "+root.key+"; root right child key is "+root.right.key;
+					Assert.assertEquals(message, Color.BLACK, root.right.color);
 				}
 			}
 			
